@@ -31,8 +31,8 @@ class Match(Score):
 
 
 if __name__=="__main__":
-    a = Side()
-    b = Side()
+    a = Side('player a')
+    b = Side('player b')
 
     g1 = Match(a, b, show_score=True)
     print(f'Winner: {g1.play()}')

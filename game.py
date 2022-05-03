@@ -2,6 +2,7 @@ import random
 from side import Side
 from score import Score
 
+
 class Game(Score):
     """
     Game implementation of Score class

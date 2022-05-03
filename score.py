@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from side import Side
+from side import Side, Points
 
 
 class NoWinnerException(Exception):
@@ -15,12 +15,6 @@ class Score(ABC):
     in the subclasses
     Also contains generic non-abstract method to ensure DRY code.
     """
-    hierachy = {
-        0: 'points',
-        1: 'games_won',
-        2: 'sets_won',
-        3: 'matches_won'
-    }
 
     def __init__(self,
                  lvl:int,
@@ -28,6 +22,7 @@ class Score(ABC):
                  side1: Side,
                  side2: Side,
                  show_score=False):
+
 
         self.lvl = lvl
         self.side1: Side = side1
@@ -38,68 +33,62 @@ class Score(ABC):
         self.rounds = 0
         self.round_limiter = round_limiter
 
+        self.hierarchy_lvl1 = 'points'
+        self.hierarchy_lvl2 = 'matches_won'
         self.side1_secondary_var = None
         self.side2_secondary_var = None
-
-    def get_vars(self, var: str):
-        # e.g. for the game class the secondary var would be points
-        self.side1_secondary_var = self.side1.__dict__[var]
-        self.side2_secondary_var = self.side2.__dict__[var]
-
-    def play(self):
-        self.rounds = 0
-        while not self.found_winner:
-            self._play_round()
-            if self.show_score:
-                self._print_current_score()
-            self.rounds += 1
-            if self.rounds>self.round_limiter:
-                raise NoWinnerException
-        self.update_winning_player()
-        return self.winning_player
 
     @abstractmethod
     def _play_round(self):
         pass
 
-    def update_winning_player(self):
-        self.winning_player.__dict__[self.hierachy[self.lvl]]+=1
+    def update_winning_side(self):
+        self.winning_side[self.hierarchy_lvl2]+=1
 
     def _print_current_score(self) -> None:
-        var = self.hierachy[self.lvl-1]
-        self.get_vars(var)
         print(
             '{0} - {1}: {2} | {3}: {4}'.format(
-                var,
+                self.hierarchy_lvl1,
                 self.side1.name,
-                self.side1_secondary_var,
+                self.side1[self.hierarchy_lvl1],
                 self.side2.name,
-                self.side2_secondary_var)
+                self.side2[self.hierarchy_lvl1])
         )
 
     @property
     def point_difference(self) -> int:
-        self.get_vars(self.hierachy[self.lvl-1])
-        return abs(self.side1_secondary_var - self.side2_secondary_var)
+        """
+        returns the difference in points between both sides
+        """
+        return abs(self.side1.__dict__[self.hierarchy_lvl1] - self.side2.__dict__[self.hierarchy_lvl1])
 
     @property
     def total_wins(self) -> int:
-        self.get_vars(self.hierachy[self.lvl-1])
+        """
+        returns the total number of wins of both sides
+        """
         return self.side1.points + self.side2.points
 
     @property
     @abstractmethod
     def found_winner(self) -> bool:
+        """
+        returns True if winner has been found, else False
+        """
         pass
 
     @property
-    def winning_score(self) -> Side:
-        # self.get_vars(self.hierachy[self.lvl-1])
+    def winning_score(self) -> int:
+        """
+        returns score of winning side
+        """
         return max(self.side1.points, self.side2.points)
 
     @property
-    def winning_player(self) -> Side:
-        self.get_vars(self.hierachy[self.lvl-1])
+    def winning_side(self) -> Side:
+        """
+        returns winning side
+        """
         if self.side1.points==self.winning_score:
             return self.side1
         if self.side2.points==self.winning_score:

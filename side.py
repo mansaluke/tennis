@@ -1,5 +1,15 @@
 import string
 import random
+from dataclasses import dataclass
+from typing import Optional
+from enum import Enum, auto
+
+
+class Points(Enum):
+    POINT: int = auto()
+    GAME: int = auto()
+    SET: int = auto()
+    MATCH: int = auto()
 
 
 class Singleton(type):
@@ -24,6 +34,9 @@ class NameGenerator(metaclass=Singleton):
         self.name_length = name_length
 
     def check_unique_name(self, name) -> str:
+        """
+        returns name if unique. If not creates new one.
+        """
         if name:
             if name in NameGenerator.names:
                 print("Name taken. Assigning new one")
@@ -39,19 +52,16 @@ class NameGenerator(metaclass=Singleton):
         return self.check_unique_name(_new_name)
 
 
+@dataclass
 class Side:
     """
-    Side class used to track the details of each side (player or double)
+    Side class represents each side (single player or double)
     """
-    def __init__(self, name: str=None):
-        self.points: int = 0
-        self.games_won: int = 0
-        self.sets_won: int = 0
-        self.matches_won: int = 0
-        self.name = NameGenerator().check_unique_name(name)
+    name: Optional[str] = None
+    points: Points.POINT = 0
+    games_won: Points.GAME = 0
+    sets_won: Points.SET = 0
+    matches_won: Points.MATCH = 0
 
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return self.name
+    def __post_init__(self):
+        self.name: str = NameGenerator().check_unique_name(self.name)

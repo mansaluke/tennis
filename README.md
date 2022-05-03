@@ -26,7 +26,7 @@ and sometimes more than one progressing to the next round.
 python 3 (tested on 3.9.1)
 
 ### Implementation
-run example.py
+run main.py
 
 ### Notes
 If name is not assigned to side it will be created using random 3 letters
